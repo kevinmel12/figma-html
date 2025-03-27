@@ -15,15 +15,15 @@ function extractMetadata(element) {
     },
     state: {
       isActive: document.activeElement === element,
-      isHoverd: false, // Difficult to determine statically
-      isDisabled: element.disabled || element.getAttribute('arial-disabled') === 'true',
+      isHovered: false, // Difficult to determine statically
+      isDisabled: element.disabled || element.getAttribute('aria-disabled') === 'true',
     },
     hierarchy: {
       parent: element.parentElement ? {
         id: element.parentElement.id || '',
         tagName: element.parentElement.tagName,
       } : null,
-      childrenCounr: element.children.length,
+      childrenCount: element.children.length,
     }
   };
 
