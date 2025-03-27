@@ -1,22 +1,54 @@
 import { htmlToFigma } from "@builder.io/html-to-figma";
 
+// Define interfaces for typing
+interface Metadata {
+  id: string;
+  classes: string[];
+  tagName: string;
+  attributes: Record<string, string>;
+  accessibilityInfo: {
+    role: string | null;
+    ariaLabel: string | null;
+    ariaHidden: string | null;
+    tabIndex: string | null;
+  };
+  state: {
+    isActive: boolean;
+    isHovered: boolean;
+    isDisabled: boolean;
+  };
+  hierarchy: {
+    parent: {
+      id: string;
+      tagName: string;
+    } | null;
+    childrenCount: number;
+  };
+}
+
+interface DOMWithMetadata {
+  element: HTMLElement;
+  metadata: Metadata;
+  children: DOMWithMetadata[];
+}
+
 // Function for extracting additional metadata
-function extractMetadata(element) {
-  const metadata = {
+function extractMetadata(element: HTMLElement): Metadata {
+  const metadata: Metadata = {
     id: element.id || '',
     classes: Array.from(element.classList || []),
     tagName: element.tagName,
     attributes: {},
     accessibilityInfo: {
-      role: element.getAttribute('role') || null,
-      ariaLabel: element.getAttribute('aria-label') || null,
-      ariaHidden: element.getAttribute('aria-hidden') || null,
-      tabIndex: element.getAttribute('tabIndex') || null,
+      role: element.getAttribute('role'),
+      ariaLabel: element.getAttribute('aria-label'),
+      ariaHidden: element.getAttribute('aria-hidden'),
+      tabIndex: element.getAttribute('tabIndex'),
     },
     state: {
       isActive: document.activeElement === element,
-      isHovered: false, // Difficult to determine statically
-      isDisabled: element.disabled || element.getAttribute('aria-disabled') === 'true',
+      isHovered: false,
+      isDisabled: element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true',
     },
     hierarchy: {
       parent: element.parentElement ? {
@@ -37,15 +69,15 @@ function extractMetadata(element) {
 }
 
 // Recursive DOM capture with metadata
-function captureDOMWithMetadata(element) {
-  const result = {
+function captureDOMWithMetadata(element: HTMLElement): DOMWithMetadata {
+  const result: DOMWithMetadata = {
     element: element,
     metadata: extractMetadata(element),
     children: []
   };
 
   for (let i = 0; i < element.children.length; i++) {
-    result.children.push(captureDOMWithMetadata(element.children[i]));
+    result.children.push(captureDOMWithMetadata(element.children[i] as HTMLElement));
   }
 
   return result;
@@ -73,12 +105,8 @@ const enrichedData = {
   }
 };
 
-var json = JSON.stringify(enrichedData);
-
-var blob = new Blob([json], {
-  type: "application/json",
-});
-
+const json = JSON.stringify(enrichedData);
+const blob = new Blob([json], { type: "application/json" });
 const link = document.createElement("a");
 link.setAttribute("href", URL.createObjectURL(blob));
 link.setAttribute("download", "page.figma.json");
