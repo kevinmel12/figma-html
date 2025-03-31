@@ -10,7 +10,7 @@ document.getElementById('captureBtn').addEventListener('click', async () => {
   // Function to be injected into the page
   function injectScript() {
     
-    // Fonction permettant d'extraire des métadonnées supplémentaires
+    // Function for extracting additional metadata
     function extractMetadata(element) {
       const metadata = {
         id: element.id || '',
